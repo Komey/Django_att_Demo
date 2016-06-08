@@ -1,8 +1,9 @@
-from django.shortcuts import render,render_to_response
+from django.shortcuts import render_to_response
 from django import forms
-from django.http import HttpResponse,HttpResponseRedirect
+from django.http import HttpResponse,HttpResponseRedirect,Http404
 from upload.models import Attachment,KeyValue
 from django.template import RequestContext
+from django.views.decorators.csrf import csrf_exempt
 import os
 
 # Create your views here.
@@ -80,7 +81,33 @@ def download(request):
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
     return response
 
+@csrf_exempt
 def getValue(request):
     key = request.REQUEST.get("key", '')
     keys = KeyValue.objects.get(key=key)
     return HttpResponse(keys.value)
+
+@csrf_exempt
+def postkey(request):
+    if request.method == "POST":
+        key = request.REQUEST.get("key")
+        value = request.REQUEST.get('value')
+        if key is not None:
+            try:
+                keys = KeyValue.objects.get(key=key)
+                keys.value = value
+                keys.save()
+            except:
+                keys = KeyValue()
+                keys.key = key
+                keys.value = value
+                keys.save()
+            return HttpResponse("OK")
+        else:
+            raise Http404
+
+    else:
+        kf = KeyForm()
+        ur = KeyValue.objects.order_by('id')
+        return render_to_response('key.html', {'kf': kf, 'ur': ur}, context_instance=RequestContext(request))
+

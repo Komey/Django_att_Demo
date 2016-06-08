@@ -19,7 +19,8 @@ from django.contrib import admin
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^upload/', 'upload.views.upload'),
-    url(r'^download/', 'upload.views.download'),
-    url(r'^key/', 'upload.views.setkey'),
-    url(r'^value/', 'upload.views.getValue'),
+    url(r'^download', 'upload.views.download'),
+    url(r'^key', 'upload.views.setkey'),
+    url(r'^value', 'upload.views.getValue'),
+    url(r'^postkey', 'upload.views.postkey'),
 ]
